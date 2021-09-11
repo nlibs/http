@@ -2,8 +2,8 @@
   "dependencies": {
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v19.3.0"
   },
-  "license": "MIT",
   "main": "./http.js",
   "name": "@nlibs/http",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "license": "MIT"
 }
