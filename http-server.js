@@ -216,7 +216,6 @@ function write_status(code, res)
 	res.writeStatus(status);
 }
 
-exports.write_status = write_status;
 
 function add_cors(res)
 {
@@ -243,8 +242,9 @@ function end(res, status, data, mime, redirect_url)
 	res.end(data);
 }
 
+exports.write_status = write_status;
 exports.end = end;
-exports.enable_cors = function(){ cors_enabled = true; }
+exports.enable_cors = function(){ console.log("enable_cors() is DEPRECATED"); cors_enabled = true; }
 exports.disable_cors = function(){ cors_enabled = false; }
 
 exports.enable_auth = function(key, expire_duration)
@@ -295,32 +295,7 @@ function is_type_valid(type, value, res)
 	return true;
 }
 
-function parse_body(q, res, keys, optional_keys)
-{
-	var obj = {};
-	for (var i in keys)
-	{
-		if (typeof q[keys[i]] === "undefined")
-		{
-			end(res, 400);
-			return false;
-		}
-
-		obj[keys[i]] = q[keys[i]];
-	}
-
-	for (var i in optional_keys)
-	{
-		if (typeof q[optional_keys[i]] === "undefined")
-			continue;
-
-		obj[optional_keys[i]] = q[optional_keys[i]];
-	}
-
-	return obj;
-}
-
-function parse_query_string(q, res, keys, optional_keys)
+function parse_fields(q, res, keys, optional_keys)
 {
 	var obj = {};
 	for (var i in keys)
@@ -380,8 +355,5 @@ function parse_query_string(q, res, keys, optional_keys)
 	return obj;
 }
 
-exports.parse_body = parse_body;		 // DEPRECATE THIS
-exports.parse_query_string = parse_query_string; // DEPRECATE THIS
-
-exports.parse_fields = parse_query_string;
+exports.parse_fields = parse_fields;
 exports.value_check = value_check;
