@@ -19,6 +19,14 @@ exports.post = function(path, fn, is_authorized)
 	endpoints.push(["post", path, fn, is_authorized]);
 }
 
+exports.bin = function(path, fn, is_authorized)
+{
+	if (typeof is_authorized == "undefined")
+		is_authorized = false;
+
+	endpoints.push(["bin", path, fn, is_authorized]);
+}
+
 exports.start = function(port)
 {
 	var UW = require('uWebSockets.js');
@@ -55,7 +63,7 @@ exports.start = function(port)
 				e[2](q, res, token_payload, req);
 			});
 		}
-		else
+		else if(e[0] == "post")
 		{
 			app.post(e[1], function(res, req)
 			{
@@ -84,6 +92,44 @@ exports.start = function(port)
 					}
 
 					e[2](obj, res, token_payload, req);
+				},
+				function()
+				{
+					end(res, 500);
+				});
+			});
+		}
+		else
+		{
+			app.post(e[1], function(res, req)
+			{
+				read_buffer(res,
+				function(buffer)
+				{
+
+					var q = parse_uws_query(req);
+
+					var token_payload;
+					if (!e[3])
+					{
+						e[2](obj, res, [], req, buffer);
+						return;
+					}
+
+					if(typeof q["token"] == "undefined")
+					{
+						end(res, 401);
+						return;
+					}
+
+					try{
+						token_payload = AUTH.decode(q["token"]);
+					} catch(e) {
+						end(res, 401);
+						return;
+					}
+
+					e[2](obj, res, token_payload, req, buffer);
 				},
 				function()
 				{
@@ -127,6 +173,49 @@ function parse_uws_query(req)
 		obj[pair[0]] = decodeURIComponent(pair[1]);
 	}
 	return obj;
+}
+
+function read_buffer(res, cb, err)
+{
+	let buffer;
+	res.onData((ab, isLast) =>
+	{
+		let chunk = Buffer.from(ab);
+		if (isLast)
+		{
+			if (buffer)
+			{
+				try
+				{
+					buffer = Buffer.concat([buffer, chunk])
+				}
+				catch (e)
+				{
+					/* res.close calls onAborted */
+					res.close();
+					return;
+				}
+				cb(buffer);
+			}
+			else
+			{
+				cb(chunk);
+			}
+		}
+		else
+		{
+			if (buffer)
+			{
+				buffer = Buffer.concat([buffer, chunk]);
+			}
+			else
+			{
+				buffer = Buffer.concat([chunk]);
+			}
+		}
+	});
+
+	res.onAborted(err);
 }
 
 function read_json(res, cb, err)
@@ -206,7 +295,6 @@ var status_map =
 	"503": "503 Service Unavailable"
 }
 
-
 function write_status(code, res)
 {
 	var status = status_map[code];
@@ -215,7 +303,6 @@ function write_status(code, res)
 
 	res.writeStatus(status);
 }
-
 
 function add_cors(res)
 {
