@@ -110,7 +110,7 @@ exports.start = function(port)
 					var token_payload;
 					if (!e[3])
 					{
-						e[2](obj, res, [], req, buffer);
+						e[2](q, res, [], req, buffer);
 						return;
 					}
 
@@ -127,7 +127,7 @@ exports.start = function(port)
 						return;
 					}
 
-					e[2](obj, res, token_payload, req, buffer);
+					e[2](q, res, token_payload, req, buffer);
 				},
 				function()
 				{
