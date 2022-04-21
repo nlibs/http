@@ -103,12 +103,10 @@ exports.start = function(port)
 		{
 			app.post(e[1], function(res, req)
 			{
+				var q = parse_uws_query(req);
 				read_buffer(res,
 				function(buffer)
 				{
-
-					var q = parse_uws_query(req);
-
 					var token_payload;
 					if (!e[3])
 					{
