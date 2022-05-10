@@ -67,7 +67,8 @@ exports.start = function(port)
 		{
 			app.post(e[1], function(res, req)
 			{
-				
+
+				var url = req.getUrl();
 				read_json(res,
 				function(obj)
 				{
@@ -91,7 +92,7 @@ exports.start = function(port)
 						return;
 					}
 
-					e[2](obj, res, token_payload, req);
+					e[2](obj, res, token_payload, req, url);
 				},
 				function()
 				{
