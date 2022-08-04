@@ -310,7 +310,7 @@ function add_cors(res)
 	res.writeHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, DELETE');
 	res.writeHeader('Access-Control-Allow-Headers', '*');
 }
-function end(res, status, data, mime, redirect_url)
+function end(res, status, data, mime, redirect_url, encoding)
 {
 	write_status(status, res);
 
@@ -325,6 +325,9 @@ function end(res, status, data, mime, redirect_url)
 	else
 		res.writeHeader("Content-Type", "application/json; charset=utf-8");
 
+	if (encoding)
+		res.writeHeader("Content-Encoding", encoding);
+	
 	res.end(data);
 }
 
