@@ -104,6 +104,7 @@ exports.start = function(port)
 		{
 			app.post(e[1], function(res, req)
 			{
+				var url = req.getUrl();
 				var q = parse_uws_query(req);
 				read_buffer(res,
 				function(buffer)
@@ -128,7 +129,7 @@ exports.start = function(port)
 						return;
 					}
 
-					e[2](q, res, token_payload, req, buffer);
+					e[2](q, res, token_payload, req, buffer, url);
 				},
 				function()
 				{
