@@ -19,12 +19,15 @@ exports.post = function(path, fn, is_authorized)
 	endpoints.push(["post", path, fn, is_authorized]);
 }
 
-exports.bin = function(path, fn, is_authorized)
+exports.bin = function(path, fn, is_authorized, headers)
 {
 	if (typeof is_authorized == "undefined")
 		is_authorized = false;
 
-	endpoints.push(["bin", path, fn, is_authorized]);
+	if (typeof headers == "undefined")
+		headers = [];
+
+	endpoints.push(["bin", path, fn, is_authorized, headers]);
 }
 
 exports.start = function(port)
@@ -104,6 +107,11 @@ exports.start = function(port)
 		{
 			app.post(e[1], function(res, req)
 			{
+				var headers = e[5];
+				var headers_map = {};
+				for (var i=0;i<headers.length;i++)
+					headers_map[headers[i]]req.getHeader(headers[i]);
+
 				var url = req.getUrl();
 				var q = parse_uws_query(req);
 				read_buffer(res,
@@ -129,7 +137,7 @@ exports.start = function(port)
 						return;
 					}
 
-					e[2](q, res, token_payload, req, buffer, url);
+					e[2](q, res, token_payload, req, buffer, url, headers_map);
 				},
 				function()
 				{
