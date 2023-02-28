@@ -120,7 +120,7 @@ exports.start = function(port)
 					var token_payload;
 					if (!e[3])
 					{
-						e[2](q, res, [], req, buffer, url);
+						e[2](q, res, [], req, buffer, url, headers_map);
 						return;
 					}
 
