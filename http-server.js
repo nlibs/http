@@ -19,7 +19,7 @@ exports.post = function(path, fn, is_authorized)
 	endpoints.push(["post", path, fn, is_authorized]);
 }
 
-exports.bin = function(path, fn, is_authorized)
+exports.bin = function(path, fn, is_authorized, headers)
 {
 	if (typeof is_authorized == "undefined")
 		is_authorized = false;
@@ -111,6 +111,7 @@ exports.start = function(port)
 				if (typeof headers == "undefined")
 					headers = [];
 
+				console.log("trying to read heeders", headers);
 				var headers_map = {};
 				for (var i=0;i<headers.length;i++)
 					headers_map[headers[i]] = req.getHeader(headers[i]);
