@@ -116,6 +116,9 @@ exports.start = function(port)
 				for (var i=0;i<headers.length;i++)
 					headers_map[headers[i]] = req.getHeader(headers[i]);
 
+				console.log("read");
+				console.log(headers_map);
+
 				var url = req.getUrl();
 				var q = parse_uws_query(req);
 				read_buffer(res,
