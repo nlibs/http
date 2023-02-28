@@ -108,6 +108,9 @@ exports.start = function(port)
 			app.post(e[1], function(res, req)
 			{
 				var headers = e[4];
+				if (typeof headers == "undefined")
+					headers = [];
+
 				var headers_map = {};
 				for (var i=0;i<headers.length;i++)
 					headers_map[headers[i]] = req.getHeader(headers[i]);
