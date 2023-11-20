@@ -41,11 +41,12 @@ exports.start = function(port)
 		{
 			app.get(e[1], function(res, req)
 			{
+				var url = req.getUrl();
 				var q = parse_uws_query(req);
 
 				if (!e[3])
 				{
-					e[2](q, res, [], req);
+					e[2](q, res, [], req, url);
 					return;
 				}
 
@@ -63,7 +64,7 @@ exports.start = function(port)
 					return;
 				}
 
-				e[2](q, res, token_payload, req);
+				e[2](q, res, token_payload, req, url);
 			});
 		}
 		else if(e[0] == "post")
