@@ -183,6 +183,9 @@ exports.start = function(port)
 function parse_uws_query(req)
 {
 	var qs = req.getQuery();
+	if (typeof qs == "undefined")
+		return {};
+
 	var obj = {};
 	var parts = qs.split("&");
 	for (var i=0;i<parts.length;i++)
