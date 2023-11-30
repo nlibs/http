@@ -2,6 +2,7 @@ const AUTH = require("./auth.js");
 
 var endpoints = [];
 var cors_enabled = true;
+var cors_header = "*"
 
 exports.get = function(path, fn, is_authorized)
 {
@@ -28,6 +29,11 @@ exports.bin = function(path, fn, is_authorized, headers)
 		headers = [];
 
 	endpoints.push(["bin", path, fn, is_authorized, headers]);
+}
+
+exports.set_cors_header = function(header)
+{
+	cors_header = header;
 }
 
 exports.start = function(port)
@@ -157,7 +163,7 @@ exports.start = function(port)
 
 	app.options("/*", function(res, req)
 	{
-		add_cors(res);
+		add_cors(res, cors_header);
 		res.end();
 	});
 
@@ -320,13 +326,14 @@ function write_status(code, res)
 	res.writeStatus(status);
 }
 
-function add_cors(res)
+function add_cors(res, header)
 {
-	res.writeHeader('Access-Control-Allow-Origin', '*');
-	res.writeHeader('Access-Control-Request-Method', '*');
+	res.writeHeader('Access-Control-Allow-Origin', header);
+	res.writeHeader('Access-Control-Request-Method', "*");
+	res.writeHeader('Access-Control-Allow-Headers', "*");
 	res.writeHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, DELETE');
-	res.writeHeader('Access-Control-Allow-Headers', '*');
 }
+
 function end(res, status, data, mime, redirect_url, encoding)
 {
 	write_status(status, res);
@@ -335,7 +342,7 @@ function end(res, status, data, mime, redirect_url, encoding)
 		res.writeHeader("Location", redirect_url);
 
 	if (cors_enabled)
-		add_cors(res);
+		add_cors(res, cors_header);
 
 	if (mime)
 		res.writeHeader("Content-Type", mime);
