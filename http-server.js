@@ -36,7 +36,7 @@ exports.set_cors_header = function(header)
 	cors_header = header;
 }
 
-exports.start = function(port)
+exports.start = function(port, host)
 {
 	var UW = require('uWebSockets.js');
 	var app = UW.App();
@@ -167,7 +167,10 @@ exports.start = function(port)
 		res.end();
 	});
 
-	app.listen(port, onlisten);
+	if (typeof host == "undefined")
+		app.listen(port, onlisten);
+	else
+		app.listen(host, port, onlisten);
 
 	function onlisten(p)
 	{
