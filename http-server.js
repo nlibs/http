@@ -177,6 +177,9 @@ exports.start = function(port, host)
 		if (p)
 		{ 
 			console.log("http-server started: " + port);
+			if (typeof host != "undefined")
+				console.log("http-server on host: " + host);
+
 			console.log("number of endpoints registered: " + endpoints.length);
 		}
 		else{ throw "can't listen port " + port; }
