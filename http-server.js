@@ -339,24 +339,29 @@ function add_cors(res, header)
 
 function end(res, status, data, mime, redirect_url, encoding)
 {
-	write_status(status, res);
+	res.cork(function()
+	{
+		write_status(status, res);
 
-	if (status == 301 || status == 302)
-		res.writeHeader("Location", redirect_url);
-
-	if (cors_enabled)
-		add_cors(res, cors_header);
-
-	if (mime)
-		res.writeHeader("Content-Type", mime);
-	else
-		res.writeHeader("Content-Type", "application/json; charset=utf-8");
-
-	if (encoding)
-		res.writeHeader("Content-Encoding", encoding);
+		if (status == 301 || status == 302)
+			res.writeHeader("Location", redirect_url);
 	
-	res.end(data);
+		if (cors_enabled)
+			add_cors(res, cors_header);
+	
+		if (mime)
+			res.writeHeader("Content-Type", mime);
+		else
+			res.writeHeader("Content-Type", "application/json; charset=utf-8");
+	
+		if (encoding)
+			res.writeHeader("Content-Encoding", encoding);		
+		
+		res.end(data);
+	});
 }
+
+
 
 exports.write_status = write_status;
 exports.end = end;
