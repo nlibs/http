@@ -4,36 +4,44 @@ var endpoints = [];
 var cors_enabled = true;
 var cors_header = "*"
 
-exports.get = function(path, fn, is_authorized)
+exports.get = function(path, fn, is_authorized, parse_headers)
 {
 	if (typeof is_authorized == "undefined")
 		is_authorized = false;
 
-	endpoints.push(["get", path, fn, is_authorized]);
+	endpoints.push(["get", path, fn, is_authorized, parse_headers]);
 }
 
-exports.post = function(path, fn, is_authorized)
+exports.post = function(path, fn, is_authorized, parse_headers)
 {
 	if (typeof is_authorized == "undefined")
 		is_authorized = false;
 
-	endpoints.push(["post", path, fn, is_authorized]);
+	endpoints.push(["post", path, fn, is_authorized, parse_headers]);
 }
 
-exports.bin = function(path, fn, is_authorized, headers)
+exports.bin = function(path, fn, is_authorized, parse_headers)
 {
 	if (typeof is_authorized == "undefined")
 		is_authorized = false;
 
-	if (typeof headers == "undefined")
-		headers = [];
-
-	endpoints.push(["bin", path, fn, is_authorized, headers]);
+	endpoints.push(["bin", path, fn, is_authorized, parse_headers]);
 }
 
 exports.set_cors_header = function(header)
 {
 	cors_header = header;
+}
+
+function parse_headers(req)
+{
+	var headers = {};
+	req.forEach(function(k, v)
+	{
+		headers[k] = v;
+	})
+
+	return headers;
 }
 
 exports.start = function(port, host)
@@ -43,16 +51,21 @@ exports.start = function(port, host)
 	for (let i=0;i<endpoints.length;i++)
 	{
 		let e = endpoints[i];
+		var should_parse_headers = e[4];
 		if (e[0] == "get")
 		{
 			app.get(e[1], function(res, req)
 			{
+				var headers = {};
+				if (should_parse_headers)
+					headers = parse_headers(req);
+
 				var url = req.getUrl();
 				var q = parse_uws_query(req);
 
 				if (!e[3])
 				{
-					e[2](q, res, [], req, url);
+					e[2](q, res, [], req, url, headers);
 					return;
 				}
 
@@ -70,13 +83,16 @@ exports.start = function(port, host)
 					return;
 				}
 
-				e[2](q, res, token_payload, req, url);
+				e[2](q, res, token_payload, req, url, headers);
 			});
 		}
 		else if(e[0] == "post")
 		{
 			app.post(e[1], function(res, req)
 			{
+				var headers = {};
+				if (should_parse_headers)
+					headers = parse_headers(req);
 
 				var url = req.getUrl();
 				read_json(res,
@@ -85,7 +101,7 @@ exports.start = function(port, host)
 					var token_payload;
 					if (!e[3])
 					{
-						e[2](obj, res, [], req, url);
+						e[2](obj, res, [], req, url, headers);
 						return;
 					}
 
@@ -102,7 +118,7 @@ exports.start = function(port, host)
 						return;
 					}
 
-					e[2](obj, res, token_payload, req, url);
+					e[2](obj, res, token_payload, req, url, headers);
 				},
 				function()
 				{
@@ -118,14 +134,6 @@ exports.start = function(port, host)
 				if (typeof headers == "undefined")
 					headers = [];
 
-				console.log("trying to read heeders", headers);
-				var headers_map = {};
-				for (var i=0;i<headers.length;i++)
-					headers_map[headers[i]] = req.getHeader(headers[i]);
-
-				console.log("read");
-				console.log(headers_map);
-
 				var url = req.getUrl();
 				var q = parse_uws_query(req);
 				read_buffer(res,
@@ -134,7 +142,7 @@ exports.start = function(port, host)
 					var token_payload;
 					if (!e[3])
 					{
-						e[2](q, res, [], req, buffer, url, headers_map);
+						e[2](q, res, [], req, buffer, url, headers);
 						return;
 					}
 
@@ -151,7 +159,7 @@ exports.start = function(port, host)
 						return;
 					}
 
-					e[2](q, res, token_payload, req, buffer, url, headers_map);
+					e[2](q, res, token_payload, req, buffer, url, headers);
 				},
 				function()
 				{
