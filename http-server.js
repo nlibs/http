@@ -9,6 +9,9 @@ exports.get = function(path, fn, is_authorized, parse_headers)
 	if (typeof is_authorized == "undefined")
 		is_authorized = false;
 
+	// console.log("parse_headers");
+	// console.log(parse_headers);
+
 	endpoints.push(["get", path, fn, is_authorized, parse_headers]);
 }
 
@@ -51,11 +54,11 @@ exports.start = function(port, host)
 	for (let i=0;i<endpoints.length;i++)
 	{
 		let e = endpoints[i];
-		var should_parse_headers = e[4];
 		if (e[0] == "get")
 		{
 			app.get(e[1], function(res, req)
 			{
+				var should_parse_headers = e[4];
 				var headers = {};
 				if (should_parse_headers)
 					headers = parse_headers(req);
@@ -88,6 +91,7 @@ exports.start = function(port, host)
 		}
 		else if(e[0] == "post")
 		{
+			var should_parse_headers = e[4];
 			app.post(e[1], function(res, req)
 			{
 				var headers = {};
@@ -128,6 +132,7 @@ exports.start = function(port, host)
 		}
 		else
 		{
+			var should_parse_headers = e[4];
 			app.post(e[1], function(res, req)
 			{
 				var headers = e[4];
